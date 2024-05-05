@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_02_011858) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_05_231351) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -38,6 +38,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_02_011858) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "layouts", force: :cascade do |t|
+    t.bigint "employer_id", null: false
+    t.string "ext_ref_num_label"
+    t.string "amount_label"
+    t.string "earning_date_label"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["employer_id"], name: "index_layouts_on_employer_id"
+  end
+
   add_foreign_key "earnings", "employees"
   add_foreign_key "employees", "employers"
+  add_foreign_key "layouts", "employers"
 end
