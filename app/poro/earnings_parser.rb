@@ -25,4 +25,8 @@ class EarningsParser
       raise StandardError, "Missing Values in CSV, please check file and try again" if row[key].nil?
     end
   end
+
+  def self.find_layout(employer)
+    Employer.find(employer.id).layout
+  end
 end
