@@ -4,5 +4,6 @@ FactoryBot.define do
     ext_ref_num_label { "MyString" }
     amount_label { "MyString" }
     earning_date_format { "MyString" }
+    earning_date_label {"Some String"}
   end
 end

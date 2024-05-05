@@ -31,13 +31,14 @@ B231,16/03/2024,$1000.00' }
   describe 'find_layout' do
     subject { described_class.find_layout(employer) }
     let!(:employer) { create(:employer) }
-    let!(:layout) { create(:layout, employer:, ext_ref_num_label: 'External reference num', amount_label: 'Amount', earning_date_format: 'dd/mm/yyyy') }
+    let!(:layout) { create(:layout, employer:, ext_ref_num_label: 'External reference num', amount_label: 'Amount', earning_date_format: 'dd/mm/yyyy', earning_date_label: 'Check Date') }
 
     it 'retrieved layout' do
       expect(subject).to eq layout
       expect(subject.amount_label).to eq 'Amount'
       expect(subject.ext_ref_num_label).to eq 'External reference num'
       expect(subject.earning_date_format).to eq 'dd/mm/yyyy'
+      expect(subject.earning_date_label).to eq 'Check Date'
     end
   end
 end
