@@ -42,7 +42,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_05_231351) do
     t.bigint "employer_id", null: false
     t.string "ext_ref_num_label"
     t.string "amount_label"
-    t.string "earning_date_label"
+    t.string "earning_date_format"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["employer_id"], name: "index_layouts_on_employer_id"
