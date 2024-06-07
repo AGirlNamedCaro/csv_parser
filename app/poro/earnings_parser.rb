@@ -10,8 +10,8 @@ class EarningsParser
     @csv_sheet = look_for_empty_rows(CSV.parse(@csv_earnings_data, headers: true).map(&:to_h))
   end
 
-  def store_earnings
-
+  def create_earning
+    Earning.insert_all(compare_csv_and_layout(@csv_sheet))
   end
 
   private
@@ -21,12 +21,30 @@ class EarningsParser
   end
 
   def check_values(row)
-    row.each do |key|
-      raise StandardError, "Missing Values in CSV, please check file and try again" if row[key].nil?
+    row.each do |key, value|
+      raise StandardError, "Missing Values in CSV, please check file and try again" if value.nil?
     end
   end
 
-  def self.find_layout(employer)
+  def find_layout(employer)
     Employer.find(employer.id).layout
+  end
+
+  def compare_csv_and_layout(csv_sheet)
+    layout = find_layout(@employer)
+    new_sheet = []
+
+    if layout
+      csv_sheet.each do |row|
+        emp_id = Employee.find_by(external_ref: row[layout.ext_ref_num_label]).id
+        updated_amount =  row[layout.amount_label].delete '$'
+        new_sheet.append({ "earning_date": row[layout.earning_date_label], "amount_cents": updated_amount.to_f * 100, "employee_id": emp_id })
+
+        new_sheet
+      end
+    else
+      raise StandardError, "Employer layout not recognized"
+    end
+    new_sheet
   end
 end

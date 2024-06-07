@@ -3,10 +3,11 @@ require 'rails_helper'
 RSpec.describe EarningsParser do
 
   describe 'csv_sheet' do
-    let(:earnings_parser) { EarningsParser.new(csv_earnings_data) }
     let!(:csv_earnings_data) { 'ref_num,date,amount
 A123,27/04/2024,$2000.70
 B231,16/03/2024,$1000.00' }
+    let(:employer) { create(:employer) }
+    let(:earnings_parser) { EarningsParser.new(csv_earnings_data, employer) }
 
     subject { earnings_parser.csv_sheet }
 
@@ -28,17 +29,31 @@ B231,16/03/2024,$1000.00' }
     end
   end
 
-  describe 'find_layout' do
-    subject { described_class.find_layout(employer) }
-    let!(:employer) { create(:employer) }
-    let!(:layout) { create(:layout, employer:, ext_ref_num_label: 'External reference num', amount_label: 'Amount', earning_date_format: 'dd/mm/yyyy', earning_date_label: 'Check Date') }
+  describe 'create_earning' do
+    subject { earnings_parser.create_earning }
 
-    it 'retrieved layout' do
-      expect(subject).to eq layout
-      expect(subject.amount_label).to eq 'Amount'
-      expect(subject.ext_ref_num_label).to eq 'External reference num'
-      expect(subject.earning_date_format).to eq 'dd/mm/yyyy'
-      expect(subject.earning_date_label).to eq 'Check Date'
+    let(:employerB) { create(:employer) }
+    let(:employeeB) { create(:employee, external_ref: '231') }
+    let(:layoutB) { create(:layout, ext_ref_num_label: 'Ref num', amount_label: "Amount", earning_date_format: 'dd/mm/yyyy', earning_date_label: 'Check Date') }
+
+    context 'EmployerA' do
+      let!(:csv_earnings_data) { 'Ext ref num,Date sent,Amount in dollars
+A123,27/04/2024,$2000.70' }
+      let!(:earnings_parser) { EarningsParser.new(csv_earnings_data, employerA) }
+      let!(:csv_sheet) { earnings_parser.csv_sheet }
+      let!(:employerA) { create(:employer) }
+      let(:date) {Date.new(2024, 04, 27)}
+      let!(:employeeA) { create(:employee, external_ref: 'A123', employer: employerA) }
+      let!(:layoutA) { create(:layout, employer: employerA, ext_ref_num_label: 'Ext ref num', amount_label: "Amount in dollars", earning_date_format: 'mm/dd/yyyy', earning_date_label: 'Date sent') }
+
+      it 'creates an earning' do
+        expect { subject }.to change(Earning, :count).by(1)
+        earning = Earning.last
+
+        expect(earning.earning_date).to eq date
+        expect(earning.amount_cents).to eq 200070
+        expect(earning.employee_id).to eq employeeA.id
+      end
     end
   end
 end
